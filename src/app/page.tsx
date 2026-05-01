@@ -21,7 +21,7 @@ const assessments = [
     alt: 'Big Five',
     title: 'Big Five Personality',
     description:
-      'Assess your openness, conscientiousness, extraversion, agreeableness, and neuroticism (OCEAN).',
+      'Assess your openness, conscientiousness, extraversion, agreeableness, and emotional stability (CEOEA).',
     eyebrow: 'Trait map',
     accent: 'Sunburst',
     icon: BrainCircuit,
