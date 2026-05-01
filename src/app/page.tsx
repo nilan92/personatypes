@@ -221,7 +221,7 @@ export default function Home() {
           </div>
         ) : null}
 
-        <GoogleAd slot="1234567890" style={{ maxWidth: '728px', margin: '0 auto 3rem auto' }} />
+        <GoogleAd style={{ maxWidth: '728px', margin: '0 auto 3rem auto' }} />
 
         <motion.div
           className="assessment-grid"

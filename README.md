@@ -32,7 +32,8 @@ npm run dev
 
 - `NEXT_PUBLIC_NEON_AUTH_URL`: Neon Auth URL for your project.
 - `NEON_AUTH_COOKIE_SECRET`: long random secret used to sign auth cookies.
-- `NEXT_PUBLIC_GOOGLE_ADSENSE_ID`: optional. If unset, the ad slot is hidden.
+- `NEXT_PUBLIC_GOOGLE_ADSENSE_ID`: optional. Your AdSense publisher ID in `ca-pub-...` form.
+- `NEXT_PUBLIC_GOOGLE_ADSENSE_SLOT`: optional. A real AdSense ad unit slot ID.
 
 ## Recommended Hosting
 
@@ -47,10 +48,11 @@ npm run dev
 3. Add the environment variables from `.env.example` in Vercel project settings.
 4. Deploy the project.
 5. In Neon Auth, make sure your production domain is allowed for auth callbacks.
+6. In Google AdSense, add your deployed site to the `Sites` list and wait until it is ready to show ads.
 
 ## Current Limitations
 
 - Assessment results are stored in local storage, so they are browser-specific.
-- Google AdSense only appears after you set a real publisher ID.
+- Google AdSense only appears after you set a real publisher ID and a real ad slot ID.
 - If you want multi-device history, the next step is saving results to Neon
   Postgres instead of local storage.

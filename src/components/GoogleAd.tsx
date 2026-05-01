@@ -9,22 +9,23 @@ declare global {
 }
 
 interface GoogleAdProps {
-  slot: string;
+  slot?: string;
   format?: string;
   responsive?: string;
   style?: React.CSSProperties;
 }
 
 export default function GoogleAd({ 
-  slot, 
+  slot,
   format = "auto", 
   responsive = "true",
   style = { display: 'block' }
 }: GoogleAdProps) {
   const publisherId = process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ID;
+  const adSlot = slot ?? process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_SLOT;
 
   useEffect(() => {
-    if (!publisherId) {
+    if (!publisherId || !adSlot) {
       return;
     }
 
@@ -34,9 +35,9 @@ export default function GoogleAd({
     } catch (err) {
       console.error('Google Ads error', err);
     }
-  }, [publisherId]);
+  }, [adSlot, publisherId]);
 
-  if (!publisherId) {
+  if (!publisherId || !adSlot) {
     return null;
   }
 
@@ -45,7 +46,7 @@ export default function GoogleAd({
       <ins className="adsbygoogle"
            style={{ display: 'block' }}
            data-ad-client={publisherId}
-           data-ad-slot={slot}
+           data-ad-slot={adSlot}
            data-ad-format={format}
            data-full-width-responsive={responsive}></ins>
     </div>
