@@ -3,13 +3,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from '@/lib/auth-client';
+import AuthRequiredState from '@/components/AuthRequiredState';
 import {
-  BasicResults,
-  getAssessmentStorageKey,
-  removeStoredValue,
-  useStoredAssessment,
-  writeStoredJson,
-} from '@/lib/assessment-storage';
+  persistAssessmentResult,
+  useAssessmentResults,
+} from '@/lib/assessment-results-client';
+import { BasicResults } from '@/lib/assessment-storage';
 
 const items = [
   { id: 1, left: 'Quiet', right: 'Talkative', trait: 'E', reverse: false },
@@ -33,11 +32,13 @@ export default function BasicAssessment() {
   const router = useRouter();
   const { data: session, isPending } = useSession();
   const [answers, setAnswers] = useState<Record<number, number>>({});
-  const storageKey = getAssessmentStorageKey('basic_results', session?.user?.id);
-  const hasCompleted = Boolean(useStoredAssessment<BasicResults>(storageKey));
+  const [isRetaking, setIsRetaking] = useState(false);
+  const { results, history, isLoading: isResultsLoading } = useAssessmentResults(session?.user?.id);
+  const existingResults = results.basic_results;
+  const hasCompleted = Boolean(existingResults) || history.basic_results.length > 0;
 
   const handleRetake = () => {
-    removeStoredValue(storageKey);
+    setIsRetaking(true);
     setAnswers({});
   };
 
@@ -45,7 +46,7 @@ export default function BasicAssessment() {
     setAnswers((prev) => ({ ...prev, [id]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (Object.keys(answers).length < items.length) {
       window.alert('Please answer all questions before submitting.');
@@ -62,11 +63,17 @@ export default function BasicAssessment() {
       scores[item.trait] += score;
     });
 
-    writeStoredJson(storageKey, scores);
+    const saveError = await persistAssessmentResult('basic_results', scores);
+    if (saveError) {
+      window.alert(`We couldn't save your result to your account yet: ${saveError}. Please try again.`);
+      return;
+    }
+
+    setIsRetaking(false);
     router.push('/results');
   };
 
-  if (isPending) {
+  if (isPending || (session && isResultsLoading)) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: '4rem' }}>
         <div className="animate-pulse">Loading...</div>
@@ -74,7 +81,16 @@ export default function BasicAssessment() {
     );
   }
 
-  if (hasCompleted) {
+  if (!session) {
+    return (
+      <AuthRequiredState
+        title="Login Required"
+        description="Sign in to take the Big Five assessment, save your answers, and unlock your results dashboard."
+      />
+    );
+  }
+
+  if (hasCompleted && !isRetaking) {
     return (
       <div
         className="animate-slide-up"
@@ -83,8 +99,8 @@ export default function BasicAssessment() {
         <div className="glass" style={{ padding: '3rem', borderRadius: '1rem' }}>
           <h2 style={{ fontSize: '2rem', marginBottom: '1.5rem' }}>Assessment Completed</h2>
           <p style={{ color: 'hsl(var(--muted-foreground))', marginBottom: '2rem' }}>
-            You have already completed the Big Five Personality assessment. Would
-            you like to retake it or view your existing results?
+            You already have one or more Big Five results saved. Would you like
+            to take it again or review your saved history?
           </p>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
             <button onClick={handleRetake} className="btn btn-secondary">

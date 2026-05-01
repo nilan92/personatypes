@@ -1,8 +1,8 @@
 ## Persona Atlas
 
 This is a Next.js app for running personality assessments with Google sign-in
-through Neon Auth. It currently stores completed assessment results in the
-browser.
+through Neon Auth and Neon Postgres. Completed assessment results are saved to
+the signed-in user profile and also mirrored locally for resilience.
 
 ## Local Development
 
@@ -32,6 +32,7 @@ npm run dev
 
 - `NEXT_PUBLIC_NEON_AUTH_URL`: Neon Auth URL for your project.
 - `NEON_AUTH_COOKIE_SECRET`: long random secret used to sign auth cookies.
+- `DATABASE_URL`: Neon Postgres connection string used to save assessment results.
 - `NEXT_PUBLIC_GOOGLE_ADSENSE_ID`: optional. Your AdSense publisher ID in `ca-pub-...` form.
 - `NEXT_PUBLIC_GOOGLE_ADSENSE_SLOT`: optional. A real AdSense ad unit slot ID.
 
@@ -39,7 +40,7 @@ npm run dev
 
 - App hosting: Vercel
 - Auth: Neon Auth
-- Database for future persistence: Neon Postgres
+- Database persistence: Neon Postgres
 
 ## Vercel Deployment
 
@@ -52,7 +53,5 @@ npm run dev
 
 ## Current Limitations
 
-- Assessment results are stored in local storage, so they are browser-specific.
+- Local storage is still used as a fallback cache, so a failed network sync can leave a result saved only on that device until the next successful login sync.
 - Google AdSense only appears after you set a real publisher ID and a real ad slot ID.
-- If you want multi-device history, the next step is saving results to Neon
-  Postgres instead of local storage.

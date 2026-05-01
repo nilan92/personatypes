@@ -1,30 +1,18 @@
 'use client';
 
 import { useSyncExternalStore } from 'react';
+import { AssessmentStorageKey } from './assessment-results';
+
+export type {
+  AssessmentStorageKey,
+  AssessmentResultsMap,
+  BasicResults,
+  JungianResults,
+  TypeABResults,
+} from './assessment-results';
 
 const STORAGE_EVENT = 'assessment-storage-updated';
-
-export type AssessmentStorageKey =
-  | 'basic_results'
-  | 'jungian_results'
-  | 'typeab_results';
-
-export interface BasicResults {
-  E: number;
-  A: number;
-  C: number;
-  ES: number;
-  O: number;
-}
-
-export interface JungianResults {
-  scores: Record<'I' | 'E' | 'S' | 'N' | 'T' | 'F' | 'J' | 'P', number>;
-  type: string;
-}
-
-export interface TypeABResults {
-  total: number;
-}
+const snapshotCache = new Map<string, { rawValue: string; parsedValue: unknown }>();
 
 function subscribe(onStoreChange: () => void) {
   if (typeof window === 'undefined') {
@@ -61,13 +49,22 @@ export function readStoredJson<T>(key: string | null) {
   const rawValue = window.localStorage.getItem(key);
 
   if (!rawValue) {
+    snapshotCache.delete(key);
     return null;
   }
 
+  const cachedSnapshot = snapshotCache.get(key);
+  if (cachedSnapshot?.rawValue === rawValue) {
+    return cachedSnapshot.parsedValue as T;
+  }
+
   try {
-    return JSON.parse(rawValue) as T;
+    const parsedValue = JSON.parse(rawValue) as T;
+    snapshotCache.set(key, { rawValue, parsedValue });
+    return parsedValue;
   } catch {
     window.localStorage.removeItem(key);
+    snapshotCache.delete(key);
     window.dispatchEvent(new Event(STORAGE_EVENT));
     return null;
   }
@@ -78,7 +75,9 @@ export function writeStoredJson(key: string, value: unknown) {
     return;
   }
 
-  window.localStorage.setItem(key, JSON.stringify(value));
+  const rawValue = JSON.stringify(value);
+  window.localStorage.setItem(key, rawValue);
+  snapshotCache.set(key, { rawValue, parsedValue: value });
   window.dispatchEvent(new Event(STORAGE_EVENT));
 }
 
@@ -88,6 +87,7 @@ export function removeStoredValue(key: string) {
   }
 
   window.localStorage.removeItem(key);
+  snapshotCache.delete(key);
   window.dispatchEvent(new Event(STORAGE_EVENT));
 }
 

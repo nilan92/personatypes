@@ -54,23 +54,25 @@ export default function Navbar() {
       </div>
 
       <div className={`nav-content ${mobileOpen ? 'is-open' : ''}`}>
-        <div className="nav-links-panel">
-          {navLinks.map((link) => {
-            const isActive = pathname === link.path;
+        {session ? (
+          <div className="nav-links-panel">
+            {navLinks.map((link) => {
+              const isActive = pathname === link.path;
 
-            return (
-              <Link
-                key={link.path}
-                href={link.path}
-                className={`nav-link ${isActive ? 'is-active' : ''}`}
-                onClick={() => setMobileOpen(false)}
-              >
-                {isActive ? <motion.span layoutId="nav-active-pill" className="nav-link-pill" /> : null}
-                <span className="nav-link-label">{link.name}</span>
-              </Link>
-            );
-          })}
-        </div>
+              return (
+                <Link
+                  key={link.path}
+                  href={link.path}
+                  className={`nav-link ${isActive ? 'is-active' : ''}`}
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {isActive ? <motion.span layoutId="nav-active-pill" className="nav-link-pill" /> : null}
+                  <span className="nav-link-label">{link.name}</span>
+                </Link>
+              );
+            })}
+          </div>
+        ) : null}
 
         <div className="nav-actions">
           {isPending ? (

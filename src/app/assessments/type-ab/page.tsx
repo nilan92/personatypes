@@ -3,13 +3,11 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from '@/lib/auth-client';
+import AuthRequiredState from '@/components/AuthRequiredState';
 import {
-  TypeABResults,
-  getAssessmentStorageKey,
-  removeStoredValue,
-  useStoredAssessment,
-  writeStoredJson,
-} from '@/lib/assessment-storage';
+  persistAssessmentResult,
+  useAssessmentResults,
+} from '@/lib/assessment-results-client';
 
 const items = [
   { id: 1, left: 'Casual about appointments', right: 'Never late' },
@@ -25,11 +23,13 @@ export default function TypeABAssessment() {
   const router = useRouter();
   const { data: session, isPending } = useSession();
   const [answers, setAnswers] = useState<Record<number, number>>({});
-  const storageKey = getAssessmentStorageKey('typeab_results', session?.user?.id);
-  const hasCompleted = Boolean(useStoredAssessment<TypeABResults>(storageKey));
+  const [isRetaking, setIsRetaking] = useState(false);
+  const { results, history, isLoading: isResultsLoading } = useAssessmentResults(session?.user?.id);
+  const existingResults = results.typeab_results;
+  const hasCompleted = Boolean(existingResults) || history.typeab_results.length > 0;
 
   const handleRetake = () => {
-    removeStoredValue(storageKey);
+    setIsRetaking(true);
     setAnswers({});
   };
 
@@ -37,7 +37,7 @@ export default function TypeABAssessment() {
     setAnswers((prev) => ({ ...prev, [id]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (Object.keys(answers).length < items.length) {
       window.alert('Please answer all questions before submitting.');
@@ -49,11 +49,17 @@ export default function TypeABAssessment() {
       totalScore += score;
     });
 
-    writeStoredJson(storageKey, { total: totalScore });
+    const saveError = await persistAssessmentResult('typeab_results', { total: totalScore });
+    if (saveError) {
+      window.alert(`We couldn't save your result to your account yet: ${saveError}. Please try again.`);
+      return;
+    }
+
+    setIsRetaking(false);
     router.push('/results');
   };
 
-  if (isPending) {
+  if (isPending || (session && isResultsLoading)) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: '4rem' }}>
         <div className="animate-pulse">Loading...</div>
@@ -61,7 +67,16 @@ export default function TypeABAssessment() {
     );
   }
 
-  if (hasCompleted) {
+  if (!session) {
+    return (
+      <AuthRequiredState
+        title="Login Required"
+        description="Sign in to take the Type A vs Type B assessment and save your behavioral profile for later."
+      />
+    );
+  }
+
+  if (hasCompleted && !isRetaking) {
     return (
       <div
         className="animate-slide-up"
@@ -70,8 +85,8 @@ export default function TypeABAssessment() {
         <div className="glass" style={{ padding: '3rem', borderRadius: '1rem' }}>
           <h2 style={{ fontSize: '2rem', marginBottom: '1.5rem' }}>Assessment Completed</h2>
           <p style={{ color: 'hsl(var(--muted-foreground))', marginBottom: '2rem' }}>
-            You have already completed the Type A vs Type B assessment. Would you
-            like to retake it or view your existing results?
+            You already have one or more Type A vs Type B results saved. Would
+            you like to take it again or review your saved history?
           </p>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
             <button onClick={handleRetake} className="btn btn-secondary">

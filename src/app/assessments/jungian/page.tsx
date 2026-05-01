@@ -3,13 +3,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from '@/lib/auth-client';
+import AuthRequiredState from '@/components/AuthRequiredState';
 import {
-  JungianResults,
-  getAssessmentStorageKey,
-  removeStoredValue,
-  useStoredAssessment,
-  writeStoredJson,
-} from '@/lib/assessment-storage';
+  persistAssessmentResult,
+  useAssessmentResults,
+} from '@/lib/assessment-results-client';
+import { JungianResults } from '@/lib/assessment-storage';
 
 const items = [
   { id: 1, text: 'I would rather', a: 'Solve anew and complicated problem.', b: 'Work on something I have done before.', mapA: 'N', mapB: 'S' },
@@ -20,17 +19,43 @@ const items = [
   { id: 6, text: 'On a project, I tend to', a: 'Think over and over before deciding how to proceed.', b: 'Start working on it right away, thinking about it as I go along.', mapA: 'I', mapB: 'E' },
   { id: 7, text: 'When working on a project, I', a: 'Maintain as much control as possible.', b: 'Explore various options.', mapA: 'J', mapB: 'P' },
   { id: 8, text: 'In my work, I prefer to', a: 'Work on several projects at a time, and learn as much as possible about each one.', b: 'Have one project that is challenging and keeps me busy.', mapA: 'P', mapB: 'J' },
+  { id: 9, text: 'I often', a: 'Make lists and plans when I start something, and may hate to seriously alter my plans.', b: 'Avoid plans and just let things progress as I work on them.', mapA: 'J', mapB: 'P' },
+  { id: 10, text: 'When discussing a problem with colleagues, it is easy for me to', a: 'See the "big picture".', b: 'Grasp the specifics of the situation.', mapA: 'N', mapB: 'S' },
+  { id: 11, text: 'When the phone rings in my office or at home, I usually', a: 'Consider it an interruption.', b: 'Do not mind answering it.', mapA: 'I', mapB: 'E' },
+  { id: 12, text: 'Which word describes you better?', a: 'Analytical', b: 'Empathetic', mapA: 'T', mapB: 'F' },
+  { id: 13, text: 'When I am working on an assignment, I tend to', a: 'Work steadily and consistently.', b: 'Work in bursts of energy with down time in between.', mapA: 'S', mapB: 'N' },
+  { id: 14, text: 'When I listen to someone talk on a subject, I usually try to', a: 'Relate it to my own experience and see if it fits.', b: 'Assess and analyse the message.', mapA: 'F', mapB: 'T' },
+  { id: 15, text: 'When I come up with new ideas, I generally', a: '"Go for it".', b: 'Like to contemplate the ideas some more.', mapA: 'E', mapB: 'I' },
+  { id: 16, text: 'When working on a project, I prefer to', a: 'Narrow the scope so it is clearly defined.', b: 'Broaden the scope to include related aspects.', mapA: 'S', mapB: 'N' },
+  { id: 17, text: 'When I read something, I usually', a: 'Confine my thoughts to what is written there.', b: 'Read between the lines and relate the words to other ideas.', mapA: 'S', mapB: 'N' },
+  { id: 18, text: 'When I have to make a decision in a hurry, I often', a: 'Feel uncomfortable and wish I had more information.', b: 'Am able to do such with available data.', mapA: 'P', mapB: 'J' },
+  { id: 19, text: 'In a meeting, I tend to', a: 'Formulate my ideas as I talk about them.', b: 'Only speak after I have carefully thought the issues through.', mapA: 'E', mapB: 'I' },
+  { id: 20, text: 'In work, I prefer spending a great deal of time on issues of', a: 'Ideas.', b: 'People.', mapA: 'T', mapB: 'F' },
+  { id: 21, text: 'In my meetings, I am most often annoyed with people who', a: 'Come up with many sketchy ideas.', b: 'Lengthen meetings with many practical details.', mapA: 'S', mapB: 'N' },
+  { id: 22, text: 'I am a', a: 'Morning person.', b: 'Night owl.', mapA: 'I', mapB: 'E' },
+  { id: 23, text: 'What is your style in preparing for a meeting?', a: 'I am willing to go in and be responsive.', b: 'I like to be fully prepared and usually sketch an outline of the meeting.', mapA: 'P', mapB: 'J' },
+  { id: 24, text: 'In a meeting, I would prefer for people to', a: 'Display a fuller range of emotions.', b: 'Be more task oriented.', mapA: 'F', mapB: 'T' },
+  { id: 25, text: 'I would rather work for an organization where', a: 'My job was intellectually stimulating.', b: 'I was committed to its goals and mission.', mapA: 'T', mapB: 'F' },
+  { id: 26, text: 'On weekends, I tend to', a: 'Plan what I do.', b: 'Just see what happens and decide as I go along.', mapA: 'J', mapB: 'P' },
+  { id: 27, text: 'I am more', a: 'Outgoing.', b: 'Contemplative.', mapA: 'E', mapB: 'I' },
+  { id: 28, text: 'I would rather work for a boss who is', a: 'Full of new ideas.', b: 'Practical.', mapA: 'N', mapB: 'S' },
+  { id: 29, text: 'Which word appeals to you more?', a: 'Social', b: 'Theoretical', mapA: 'F', mapB: 'T' },
+  { id: 30, text: 'Which word appeals to you more?', a: 'Ingenuity', b: 'Practicality', mapA: 'N', mapB: 'S' },
+  { id: 31, text: 'Which word appeals to you more?', a: 'Organised', b: 'Adaptable', mapA: 'J', mapB: 'P' },
+  { id: 32, text: 'Which word appeals to you more?', a: 'Active', b: 'Concentration', mapA: 'E', mapB: 'I' },
 ] as const;
 
 export default function JungianAssessment() {
   const router = useRouter();
   const { data: session, isPending } = useSession();
   const [answers, setAnswers] = useState<Record<number, 'A' | 'B'>>({});
-  const storageKey = getAssessmentStorageKey('jungian_results', session?.user?.id);
-  const hasCompleted = Boolean(useStoredAssessment<JungianResults>(storageKey));
+  const [isRetaking, setIsRetaking] = useState(false);
+  const { results, history, isLoading: isResultsLoading } = useAssessmentResults(session?.user?.id);
+  const existingResults = results.jungian_results;
+  const hasCompleted = Boolean(existingResults) || history.jungian_results.length > 0;
 
   const handleRetake = () => {
-    removeStoredValue(storageKey);
+    setIsRetaking(true);
     setAnswers({});
   };
 
@@ -38,7 +63,7 @@ export default function JungianAssessment() {
     setAnswers((prev) => ({ ...prev, [id]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (Object.keys(answers).length < items.length) {
       window.alert('Please answer all questions before submitting.');
@@ -69,11 +94,17 @@ export default function JungianAssessment() {
       scores.J > scores.P ? 'J' : 'P',
     ].join('');
 
-    writeStoredJson(storageKey, { scores, type });
+    const saveError = await persistAssessmentResult('jungian_results', { scores, type });
+    if (saveError) {
+      window.alert(`We couldn't save your result to your account yet: ${saveError}. Please try again.`);
+      return;
+    }
+
+    setIsRetaking(false);
     router.push('/results');
   };
 
-  if (isPending) {
+  if (isPending || (session && isResultsLoading)) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: '4rem' }}>
         <div className="animate-pulse">Loading...</div>
@@ -81,7 +112,16 @@ export default function JungianAssessment() {
     );
   }
 
-  if (hasCompleted) {
+  if (!session) {
+    return (
+      <AuthRequiredState
+        title="Login Required"
+        description="Sign in to access the Jungian type assessment and keep your type results linked to your profile."
+      />
+    );
+  }
+
+  if (hasCompleted && !isRetaking) {
     return (
       <div
         className="animate-slide-up"
@@ -90,8 +130,8 @@ export default function JungianAssessment() {
         <div className="glass" style={{ padding: '3rem', borderRadius: '1rem' }}>
           <h2 style={{ fontSize: '2rem', marginBottom: '1.5rem' }}>Assessment Completed</h2>
           <p style={{ color: 'hsl(var(--muted-foreground))', marginBottom: '2rem' }}>
-            You have already completed the Jungian 16-Type assessment. Would you
-            like to retake it or view your existing results?
+            You already have one or more Jungian 16-Type results saved. Would
+            you like to take it again or review your saved history?
           </p>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
             <button onClick={handleRetake} className="btn btn-secondary">
