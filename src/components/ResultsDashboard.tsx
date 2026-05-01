@@ -13,13 +13,48 @@ const dateTimeFormatter = new Intl.DateTimeFormat(undefined, {
   minute: '2-digit',
 });
 
+// CEOEA order: Conscientiousness, Extraversion, Openness, Emotional Stability, Agreeableness
 const basicTraitLabels = [
-  { key: 'E', label: 'Extraversion' },
-  { key: 'A', label: 'Agreeableness' },
   { key: 'C', label: 'Conscientiousness' },
-  { key: 'ES', label: 'Emotional Stability' },
+  { key: 'E', label: 'Extraversion' },
   { key: 'O', label: 'Openness' },
+  { key: 'ES', label: 'Emotional Stability' },
+  { key: 'A', label: 'Agreeableness' },
 ] as const;
+
+function getTraitLevel(score: number): { label: string; color: string } {
+  if (score <= 6) return { label: 'Low', color: 'hsl(210, 70%, 55%)' };
+  if (score <= 11) return { label: 'Medium', color: 'hsl(45, 90%, 55%)' };
+  return { label: 'High', color: 'hsl(140, 60%, 50%)' };
+}
+
+const traitInsights: Record<string, Record<string, string>> = {
+  C: {
+    Low: 'Flexible and spontaneous — may struggle with deadlines. Try a simple daily to-do list to build consistency.',
+    Medium: 'Reasonably organised and reliable. You balance structure with flexibility well.',
+    High: 'Highly disciplined and goal-driven. Leverage this in project management, leadership, or any role that rewards follow-through.',
+  },
+  E: {
+    Low: 'Energised by solitude and deep one-on-one connections. Thrive in roles with independent, focused work.',
+    Medium: 'Comfortable in both social and solo settings — adaptable across team and individual work.',
+    High: 'Natural networker who thrives in social environments. Seek roles with frequent collaboration and people interaction.',
+  },
+  O: {
+    Low: 'Prefer routine and the familiar — practical and consistent. Excel in environments that value process and stability.',
+    Medium: 'Balance curiosity with practicality. Open to new ideas when they are well-reasoned.',
+    High: 'Highly creative and intellectually curious. Thrive in innovation, the arts, research, or entrepreneurship.',
+  },
+  ES: {
+    Low: 'More sensitive to stress and emotionally reactive. Mindfulness, journaling, or regular exercise can help regulate responses.',
+    Medium: 'Generally stable, with occasional emotional fluctuation under pressure.',
+    High: 'Calm and resilient under pressure — a steady presence in high-stress or crisis situations.',
+  },
+  A: {
+    Low: 'Direct and competitive — willing to challenge others. Effective in negotiation or roles requiring tough decisions.',
+    Medium: 'Cooperative but not a pushover. You adapt your approach depending on the situation.',
+    High: 'Warm, empathetic, and collaborative — a natural mediator. Valuable in caregiving, counselling, or people-focused roles.',
+  },
+};
 
 function formatTakenAt(value: string | null) {
   return value ? dateTimeFormatter.format(new Date(value)) : 'Saved locally on this device';
@@ -165,56 +200,98 @@ export default function ResultsDashboard() {
             </div>
 
             <div style={{ display: 'grid', gap: '0.9rem', marginBottom: '1.5rem' }}>
-              {basicChartData.map((item) => (
-                <div key={item.subject}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', marginBottom: '0.45rem' }}>
-                    <span style={{ fontSize: '0.95rem', fontWeight: 600 }}>{item.subject}</span>
-                    <span style={{ color: 'hsl(var(--muted-foreground))' }}>{item.A} / {item.fullMark}</span>
-                  </div>
-                  <div
-                    style={{
-                      width: '100%',
-                      height: '12px',
-                      background: 'rgba(255,255,255,0.08)',
-                      borderRadius: '999px',
-                      overflow: 'hidden',
-                    }}
-                  >
+              {basicChartData.map((item) => {
+                const level = getTraitLevel(item.A);
+                return (
+                  <div key={item.subject}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', marginBottom: '0.45rem', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.95rem', fontWeight: 600 }}>{item.subject}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                        <span
+                          style={{
+                            fontSize: '0.72rem',
+                            fontWeight: 700,
+                            padding: '0.1rem 0.45rem',
+                            borderRadius: '999px',
+                            color: level.color,
+                            border: `1px solid ${level.color}`,
+                          }}
+                        >
+                          {level.label}
+                        </span>
+                        <span style={{ color: 'hsl(var(--muted-foreground))' }}>{item.A} / {item.fullMark}</span>
+                      </div>
+                    </div>
                     <div
                       style={{
-                        width: `${(item.A / item.fullMark) * 100}%`,
-                        height: '100%',
+                        width: '100%',
+                        height: '12px',
+                        background: 'rgba(255,255,255,0.08)',
                         borderRadius: '999px',
-                        background: 'linear-gradient(90deg, hsl(var(--primary)), #ff6b6b)',
+                        overflow: 'hidden',
                       }}
-                    />
+                    >
+                      <div
+                        style={{
+                          width: `${(item.A / item.fullMark) * 100}%`,
+                          height: '100%',
+                          borderRadius: '999px',
+                          background: 'linear-gradient(90deg, hsl(var(--primary)), #ff6b6b)',
+                        }}
+                      />
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem' }}>
-              {basicTraitLabels.map((trait) => (
-                <div
-                  key={trait.key}
-                  style={{
-                    padding: '1rem',
-                    borderRadius: '1rem',
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                  }}
-                >
-                  <div style={{ fontSize: '0.85rem', color: 'hsl(var(--muted-foreground))', marginBottom: '0.35rem' }}>
-                    {trait.label}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+              {basicTraitLabels.map((trait) => {
+                const score = basicResults[trait.key];
+                const level = getTraitLevel(score);
+                const insight = traitInsights[trait.key]?.[level.label];
+                return (
+                  <div
+                    key={trait.key}
+                    style={{
+                      padding: '1rem',
+                      borderRadius: '1rem',
+                      background: 'rgba(255,255,255,0.04)',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                      <div style={{ fontSize: '0.85rem', color: 'hsl(var(--muted-foreground))' }}>
+                        {trait.label}
+                      </div>
+                      <span
+                        style={{
+                          fontSize: '0.72rem',
+                          fontWeight: 700,
+                          padding: '0.15rem 0.5rem',
+                          borderRadius: '999px',
+                          color: level.color,
+                          border: `1px solid ${level.color}`,
+                          letterSpacing: '0.04em',
+                        }}
+                      >
+                        {level.label}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: '1.7rem', fontWeight: 700, marginBottom: '0.6rem' }}>
+                      {score}
+                      <span style={{ fontSize: '0.95rem', color: 'hsl(var(--muted-foreground))', marginLeft: '0.35rem' }}>
+                        / 15
+                      </span>
+                    </div>
+                    {insight && (
+                      <div style={{ fontSize: '0.8rem', color: 'hsl(var(--muted-foreground))', lineHeight: 1.5 }}>
+                        {insight}
+                      </div>
+                    )}
                   </div>
-                  <div style={{ fontSize: '1.7rem', fontWeight: 700 }}>
-                    {basicResults[trait.key]}
-                    <span style={{ fontSize: '0.95rem', color: 'hsl(var(--muted-foreground))', marginLeft: '0.35rem' }}>
-                      / 15
-                    </span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         ) : null}
