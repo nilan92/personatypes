@@ -3,16 +3,8 @@
 import { useSession } from '@/lib/auth-client';
 import { useAssessmentResults } from '@/lib/assessment-results-client';
 import AuthRequiredState from '@/components/AuthRequiredState';
+import BigFiveRadarChart from '@/components/BigFiveRadarChart';
 import { motion } from 'framer-motion';
-import {
-  PolarAngleAxis,
-  PolarGrid,
-  PolarRadiusAxis,
-  Radar,
-  RadarChart,
-  ResponsiveContainer,
-  Tooltip,
-} from 'recharts';
 
 const dateTimeFormatter = new Intl.DateTimeFormat(undefined, {
   weekday: 'short',
@@ -177,16 +169,8 @@ export default function ResultsDashboard() {
               </div>
             </div>
 
-            <div style={{ height: '380px', width: '100%', marginBottom: '1.5rem' }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <RadarChart cx="50%" cy="50%" outerRadius="78%" data={basicChartData}>
-                  <PolarGrid stroke="rgba(255,255,255,0.2)" />
-                  <PolarAngleAxis dataKey="subject" tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }} />
-                  <PolarRadiusAxis angle={30} domain={[0, 15]} tick={{ fill: 'rgba(255,255,255,0.5)' }} />
-                  <Radar name="Score" dataKey="A" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.5} />
-                  <Tooltip contentStyle={{ backgroundColor: 'rgba(10, 10, 10, 0.9)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }} />
-                </RadarChart>
-              </ResponsiveContainer>
+            <div style={{ marginBottom: '1.5rem' }}>
+              <BigFiveRadarChart data={basicChartData} />
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem' }}>
