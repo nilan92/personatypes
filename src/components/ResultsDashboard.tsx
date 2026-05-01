@@ -3,8 +3,6 @@
 import { useSession } from '@/lib/auth-client';
 import { useAssessmentResults } from '@/lib/assessment-results-client';
 import AuthRequiredState from '@/components/AuthRequiredState';
-import BigFiveRadarChart from '@/components/BigFiveRadarChart';
-import { motion } from 'framer-motion';
 
 const dateTimeFormatter = new Intl.DateTimeFormat(undefined, {
   weekday: 'short',
@@ -135,12 +133,9 @@ export default function ResultsDashboard() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
         {basicResults ? (
-          <motion.div
+          <div
             className="glass"
             style={{ padding: '2rem', gridColumn: '1 / -1' }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap', marginBottom: '1rem' }}>
               <div>
@@ -169,8 +164,33 @@ export default function ResultsDashboard() {
               </div>
             </div>
 
-            <div style={{ marginBottom: '1.5rem' }}>
-              <BigFiveRadarChart data={basicChartData} />
+            <div style={{ display: 'grid', gap: '0.9rem', marginBottom: '1.5rem' }}>
+              {basicChartData.map((item) => (
+                <div key={item.subject}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', marginBottom: '0.45rem' }}>
+                    <span style={{ fontSize: '0.95rem', fontWeight: 600 }}>{item.subject}</span>
+                    <span style={{ color: 'hsl(var(--muted-foreground))' }}>{item.A} / {item.fullMark}</span>
+                  </div>
+                  <div
+                    style={{
+                      width: '100%',
+                      height: '12px',
+                      background: 'rgba(255,255,255,0.08)',
+                      borderRadius: '999px',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: `${(item.A / item.fullMark) * 100}%`,
+                        height: '100%',
+                        borderRadius: '999px',
+                        background: 'linear-gradient(90deg, hsl(var(--primary)), #ff6b6b)',
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem' }}>
@@ -196,16 +216,13 @@ export default function ResultsDashboard() {
                 </div>
               ))}
             </div>
-          </motion.div>
+          </div>
         ) : null}
 
         {jungianResults ? (
-          <motion.div
+          <div
             className="glass"
             style={{ padding: '2rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
           >
             <h2 style={{ fontSize: '1.5rem', marginBottom: '0.75rem', color: 'hsl(var(--primary))' }}>
               Jungian Type
@@ -224,16 +241,13 @@ export default function ResultsDashboard() {
             <div style={{ fontSize: '0.9rem', color: 'hsl(var(--muted-foreground))', textAlign: 'center' }}>
               Saved attempts: {history.jungian_results.length}
             </div>
-          </motion.div>
+          </div>
         ) : null}
 
         {typeabResults ? (
-          <motion.div
+          <div
             className="glass"
             style={{ padding: '2rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
           >
             <h2 style={{ fontSize: '1.5rem', marginBottom: '0.75rem', color: 'hsl(var(--primary))' }}>
               Behavioral Type
@@ -283,7 +297,7 @@ export default function ResultsDashboard() {
             <div style={{ fontSize: '0.9rem', color: 'hsl(var(--muted-foreground))', textAlign: 'center' }}>
               Saved attempts: {history.typeab_results.length}
             </div>
-          </motion.div>
+          </div>
         ) : null}
 
         {!basicResults && !jungianResults && !typeabResults ? (
