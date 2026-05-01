@@ -13,23 +13,26 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const adSenseId = process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ID;
+  const adSenseId =
+    process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ID ?? 'ca-pub-1339075638356223';
 
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
+      <head>
+        {adSenseId ? (
+          <Script
+            id="google-adsense"
+            async
+            strategy="afterInteractive"
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adSenseId}`}
+            crossOrigin="anonymous"
+          />
+        ) : null}
+      </head>
       <body suppressHydrationWarning>
         <Navbar />
         <main className="container">{children}</main>
       </body>
-      {adSenseId ? (
-        <Script
-          id="google-adsense"
-          async
-          strategy="afterInteractive"
-          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adSenseId}`}
-          crossOrigin="anonymous"
-        />
-      ) : null}
     </html>
   );
 }

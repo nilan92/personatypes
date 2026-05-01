@@ -21,7 +21,8 @@ export default function GoogleAd({
   responsive = "true",
   style = { display: 'block' }
 }: GoogleAdProps) {
-  const publisherId = process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ID;
+  const publisherId =
+    process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_ID ?? 'ca-pub-1339075638356223';
   const adSlot = slot ?? process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_SLOT;
 
   useEffect(() => {
