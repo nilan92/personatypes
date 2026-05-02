@@ -3,6 +3,7 @@
 import { useSession } from '@/lib/auth-client';
 import { useAssessmentResults } from '@/lib/assessment-results-client';
 import AuthRequiredState from '@/components/AuthRequiredState';
+import PdfExportButton from '@/components/PdfExportButton';
 
 const dateTimeFormatter = new Intl.DateTimeFormat(undefined, {
   weekday: 'short',
@@ -429,6 +430,16 @@ export default function ResultsDashboard() {
         <p style={{ color: 'hsl(var(--muted-foreground))' }}>
           Review your latest results, understand your traits, and revisit your history over time.
         </p>
+        {(basicResults || jungianResults || typeabResults) && (
+          <div style={{ marginTop: '1rem' }}>
+            <PdfExportButton
+              userName={session.user.name}
+              basic={basicResults ?? null}
+              jungian={jungianResults ?? null}
+              typeab={typeabResults ?? null}
+            />
+          </div>
+        )}
         {completedCount < 3 && (
           <div
             style={{

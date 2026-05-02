@@ -103,13 +103,37 @@ export default function TypeABAssessment() {
 
   return (
     <div className="animate-slide-up" style={{ maxWidth: '800px', margin: '0 auto', paddingBottom: '4rem' }}>
-      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem' }} className="text-gradient">
           Type A vs Type B Assessment
         </h1>
         <p style={{ color: 'hsl(var(--muted-foreground))' }}>
-          Select the number along the scale (1 to 8) that best describes your
-          behavior.
+          7 questions to place you on the Type A–B behavioural spectrum.
+        </p>
+      </div>
+
+      {/* How-to guidance */}
+      <div
+        className="glass"
+        style={{ padding: '1.25rem 1.5rem', marginBottom: '1.75rem', borderLeft: '3px solid hsl(var(--primary))' }}
+      >
+        <p style={{ fontWeight: 600, marginBottom: '0.6rem', fontSize: '0.9rem' }}>How to answer</p>
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+          {[
+            'Each row shows two opposite behaviours — pick the number that best represents your usual behaviour.',
+            '1 = completely the left description, 8 = completely the right description.',
+            "Think about how you actually behave at work and under pressure, not just in relaxed settings.",
+            'Most people land somewhere in the middle — both moderate Type A and moderate Type B are common and healthy.',
+          ].map((tip, i) => (
+            <li key={i} style={{ display: 'flex', gap: '0.6rem', fontSize: '0.83rem', color: 'hsl(var(--muted-foreground))', lineHeight: 1.5 }}>
+              <span style={{ color: 'hsl(var(--primary))', fontWeight: 700, flexShrink: 0 }}>·</span>
+              {tip}
+            </li>
+          ))}
+        </ul>
+        <p style={{ fontSize: '0.8rem', color: 'hsl(var(--muted-foreground))', marginTop: '0.75rem', marginBottom: 0 }}>
+          <strong style={{ color: 'hsl(var(--foreground))' }}>What this measures:</strong>{' '}
+          Type A individuals tend to be competitive, time-conscious, and driven. Type B individuals tend to be relaxed, patient, and less urgency-focused. Neither is superior — the model helps you understand your stress response, work style, and health risk profile.
         </p>
       </div>
 
