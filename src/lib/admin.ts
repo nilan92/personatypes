@@ -12,9 +12,9 @@ export async function getAdminSession() {
 
   try {
     const sql = getSql();
-    const rows = await sql`
+    const rows = (await sql`
       SELECT 1 FROM public.admin_users WHERE user_id = ${session.user.id} LIMIT 1
-    `;
+    `) as unknown[];
     if (!rows.length) return null;
   } catch {
     return null;
