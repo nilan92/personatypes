@@ -148,13 +148,37 @@ export default function JungianAssessment() {
 
   return (
     <div className="animate-slide-up" style={{ maxWidth: '800px', margin: '0 auto', paddingBottom: '4rem' }}>
-      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem' }} className="text-gradient">
           Jungian 16-Type Assessment
         </h1>
         <p style={{ color: 'hsl(var(--muted-foreground))' }}>
-          For each item, select either A or B. If you feel both are true, decide
-          which one is more like you.
+          32 forced-choice questions to identify your 4-letter personality type.
+        </p>
+      </div>
+
+      {/* How-to guidance */}
+      <div
+        className="glass"
+        style={{ padding: '1.25rem 1.5rem', marginBottom: '1.75rem', borderLeft: '3px solid hsl(var(--primary))' }}
+      >
+        <p style={{ fontWeight: 600, marginBottom: '0.6rem', fontSize: '0.9rem' }}>How to answer</p>
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+          {[
+            'Each question has two options — select whichever feels more natural to you, even slightly.',
+            'If both apply, go with your first gut reaction. Overthinking often nudges you toward who you want to be, not who you are.',
+            "Answer based on your natural tendencies, not your job role or what's expected of you.",
+            'There are no good or bad types — every combination has genuine strengths.',
+          ].map((tip, i) => (
+            <li key={i} style={{ display: 'flex', gap: '0.6rem', fontSize: '0.83rem', color: 'hsl(var(--muted-foreground))', lineHeight: 1.5 }}>
+              <span style={{ color: 'hsl(var(--primary))', fontWeight: 700, flexShrink: 0 }}>·</span>
+              {tip}
+            </li>
+          ))}
+        </ul>
+        <p style={{ fontSize: '0.8rem', color: 'hsl(var(--muted-foreground))', marginTop: '0.75rem', marginBottom: 0 }}>
+          <strong style={{ color: 'hsl(var(--foreground))' }}>What this measures:</strong>{' '}
+          Based on Carl Jung&apos;s theory of psychological types, the 16-type model maps your preferences across four dimensions: Introversion/Extraversion, Sensing/Intuition, Thinking/Feeling, and Judging/Perceiving. Your result is a 4-letter code (e.g. INTJ, ENFP) with a detailed profile.
         </p>
       </div>
 

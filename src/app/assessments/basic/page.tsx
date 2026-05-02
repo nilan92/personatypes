@@ -117,12 +117,37 @@ export default function BasicAssessment() {
 
   return (
     <div className="animate-slide-up" style={{ maxWidth: '800px', margin: '0 auto', paddingBottom: '4rem' }}>
-      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem' }} className="text-gradient">
-          Basic Personality Assessment
+          Big Five Personality Assessment
         </h1>
         <p style={{ color: 'hsl(var(--muted-foreground))' }}>
-          Select the number along the scale that mostly describes your preferences.
+          Rate yourself on 15 trait scales to reveal your Big Five personality profile.
+        </p>
+      </div>
+
+      {/* How-to guidance */}
+      <div
+        className="glass"
+        style={{ padding: '1.25rem 1.5rem', marginBottom: '1.75rem', borderLeft: '3px solid hsl(var(--primary))' }}
+      >
+        <p style={{ fontWeight: 600, marginBottom: '0.6rem', fontSize: '0.9rem' }}>How to answer</p>
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+          {[
+            'Each row shows two opposite traits — pick the number that reflects where you actually sit, not where you wish you were.',
+            '1 = completely the left trait, 5 = completely the right trait, 3 = roughly equal.',
+            'Go with your first instinct. There are no right or wrong answers.',
+            'Think about your typical behaviour across different situations, not just at your best.',
+          ].map((tip, i) => (
+            <li key={i} style={{ display: 'flex', gap: '0.6rem', fontSize: '0.83rem', color: 'hsl(var(--muted-foreground))', lineHeight: 1.5 }}>
+              <span style={{ color: 'hsl(var(--primary))', fontWeight: 700, flexShrink: 0 }}>·</span>
+              {tip}
+            </li>
+          ))}
+        </ul>
+        <p style={{ fontSize: '0.8rem', color: 'hsl(var(--muted-foreground))', marginTop: '0.75rem', marginBottom: 0 }}>
+          <strong style={{ color: 'hsl(var(--foreground))' }}>What this measures:</strong>{' '}
+          The Big Five model (OCEAN) is one of the most rigorously validated personality frameworks in psychology. It measures Openness, Conscientiousness, Extraversion, Agreeableness, and Emotional Stability — traits that predict behaviour across work, relationships, and daily life.
         </p>
       </div>
 
