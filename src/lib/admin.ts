@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { getSql } from './db';
 import { auth } from './auth-server';
 
 export async function getAdminSession() {
@@ -9,14 +10,13 @@ export async function getAdminSession() {
     return null;
   }
 
-  const adminEmails = (process.env.ADMIN_EMAILS ?? '')
-    .split(',')
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean);
-
-  const userEmail = (session.user.email ?? '').toLowerCase();
-
-  if (!adminEmails.length || !adminEmails.includes(userEmail)) {
+  try {
+    const sql = getSql();
+    const rows = await sql`
+      SELECT 1 FROM public.admin_users WHERE user_id = ${session.user.id} LIMIT 1
+    `;
+    if (!rows.length) return null;
+  } catch {
     return null;
   }
 

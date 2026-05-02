@@ -5,7 +5,7 @@ import { Search, ChevronDown, ChevronUp, Users, BarChart2, Activity } from 'luci
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-interface UserRow {
+export interface AdminUserRow {
   id: string;
   email: string | null;
   name: string | null;
@@ -14,7 +14,7 @@ interface UserRow {
   assessments_completed: number;
 }
 
-interface LatestResult {
+export interface AdminLatestResult {
   user_id: string;
   assessment_key: string;
   result_data: unknown;
@@ -22,8 +22,8 @@ interface LatestResult {
 }
 
 interface Props {
-  users: UserRow[];
-  latestResults: LatestResult[];
+  users: AdminUserRow[];
+  latestResults: AdminLatestResult[];
 }
 
 // ── Formatters ────────────────────────────────────────────────────────────────
@@ -160,7 +160,7 @@ export default function AdminDashboard({ users, latestResults }: Props) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const resultsByUser = useMemo(() => {
-    const map = new Map<string, LatestResult[]>();
+    const map = new Map<string, AdminLatestResult[]>();
     for (const r of latestResults) {
       const existing = map.get(r.user_id) ?? [];
       existing.push(r);
@@ -272,7 +272,7 @@ export default function AdminDashboard({ users, latestResults }: Props) {
         ) : (
           filtered.map((user) => {
             const isOpen = expandedId === user.id;
-            const userResults = resultsByUser.get(user.id) ?? [];
+            const userResults: AdminLatestResult[] = resultsByUser.get(user.id) ?? [];
 
             return (
               <div key={user.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>

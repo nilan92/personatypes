@@ -1,3 +1,4 @@
+import type { AdminUserRow, AdminLatestResult } from '@/components/AdminDashboard';
 import { getAdminSession } from '@/lib/admin';
 import { getSql } from '@/lib/db';
 import AdminDashboard from '@/components/AdminDashboard';
@@ -31,7 +32,10 @@ async function fetchAdminData() {
       ORDER BY user_id, assessment_key, created_at DESC, id DESC
     `,
   ]);
-  return { users, latestResults };
+  return {
+    users: users as AdminUserRow[],
+    latestResults: latestResults as AdminLatestResult[],
+  };
 }
 
 export default async function AdminPage() {
@@ -50,9 +54,8 @@ export default async function AdminPage() {
       >
         <h1 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Access Denied</h1>
         <p style={{ color: 'hsl(var(--muted-foreground))' }}>
-          You don&apos;t have permission to view this page. Admin access is granted via the{' '}
-          <code style={{ fontSize: '0.85rem', opacity: 0.8 }}>ADMIN_EMAILS</code> environment
-          variable.
+          You don&apos;t have permission to view this page. Admin access is managed via the{' '}
+          <code style={{ fontSize: '0.85rem', opacity: 0.8 }}>admin_users</code> table in Neon.
         </p>
       </div>
     );
@@ -60,10 +63,5 @@ export default async function AdminPage() {
 
   const { users, latestResults } = await fetchAdminData();
 
-  return (
-    <AdminDashboard
-      users={users as Parameters<typeof AdminDashboard>[0]['users']}
-      latestResults={latestResults as Parameters<typeof AdminDashboard>[0]['latestResults']}
-    />
-  );
+  return <AdminDashboard users={users} latestResults={latestResults} />;
 }
