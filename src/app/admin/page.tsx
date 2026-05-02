@@ -17,7 +17,7 @@ async function fetchAdminData() {
         COUNT(ar.id)::int                       AS total_attempts,
         COUNT(DISTINCT ar.assessment_key)::int  AS assessments_completed
       FROM neon_auth.users_sync u
-      LEFT JOIN public.assessment_results ar ON ar.user_id = u.id
+      INNER JOIN public.assessment_results ar ON ar.user_id = u.id
       WHERE u.deleted_at IS NULL
       GROUP BY u.id, u.email, u.name, u.created_at
       ORDER BY u.created_at DESC
