@@ -147,7 +147,7 @@ export default function BasicAssessment() {
         </ul>
         <p style={{ fontSize: '0.8rem', color: 'hsl(var(--muted-foreground))', marginTop: '0.75rem', marginBottom: 0 }}>
           <strong style={{ color: 'hsl(var(--foreground))' }}>What this measures:</strong>{' '}
-          The Big Five model (OCEAN) is one of the most rigorously validated personality frameworks in psychology. It measures Openness, Conscientiousness, Extraversion, Agreeableness, and Emotional Stability — traits that predict behaviour across work, relationships, and daily life.
+          The Big Five model (CEOAE) is one of the most rigorously validated personality frameworks in psychology. It measures Openness, Conscientiousness, Extraversion, Agreeableness, and Emotional Stability — traits that predict behaviour across work, relationships, and daily life.
         </p>
       </div>
 
